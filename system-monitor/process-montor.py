@@ -6,6 +6,7 @@ import time
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import psutil
+from threading import Thread
 
 
 
@@ -49,33 +50,33 @@ class ProcessTree(QTreeWidget):
         self.headerItem().setText(4, QApplication.translate("ProcessMonitor", "Memory", None, QApplication.UnicodeUTF8))
         self.headerItem().setText(5, QApplication.translate("ProcessMonitor", "Command", None, QApplication.UnicodeUTF8))
 
+        
         pids = psutil.get_pid_list()
         procs = []
         for pid in pids:
             try:
                 p = psutil.Process(pid)
                 new_proc = (p.name, 
-                    str(p.pid),
-                    p.username,
-                    str(p.get_cpu_percent()),
-                    str(int(p.get_memory_percent() * 100)),
-                    p.cmdline)
+                            str(p.pid),
+                            p.username,
+                            str(0),
+                            str(int(p.get_memory_percent() * 100)),
+                            p.cmdline)
                 procs.append(new_proc)
             except:
                 pass
+            
         sorted_procs = sorted(procs)
         for proc in sorted_procs:
             item = MyItem(self, process_name=proc[0], pid=proc[1], user=proc[2], cpu_percent=proc[3], mem_percent=proc[4], command=" ".join(proc[5][:]))
-            
 
-            # Always inserting at the top of the list
-            self.insertTopLevelItem(0, item)
-            self.itemList.append(item)
+        self.insertTopLevelItem(0, item)
+        self.itemList.append(item)
 
 class ProcessMonitor(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
-        self.resize(700,400)
+        self.resize(768,480)
 
         # Central Widget
         self.layoutWidget = QWidget(self)
@@ -95,19 +96,10 @@ QSizePolicy.Fixed))
         self.lv_Main.addWidget(self.btn)
         self.lv_Main.addWidget(self.tree)
         # Connections
-        self.connect(self.btn, SIGNAL('clicked()'), self.reinsertItems)
+        self.connect(self.btn, SIGNAL('clicked()'), self.end_process)
 
-    def reinsertItems(self):
-        tempItemList = []
-
-        for i in range(self.tree.topLevelItemCount()):
-            item = self.tree.takeTopLevelItem(i)
-            tempItemList.append(item)
-
-
-        print "All items removed, check Tree's Item count: ",
-        self.tree.topLevelItemCount()
-        self.tree.insertTopLevelItem(0, item)
+    def end_process(self):
+        pass
 
 
 if __name__ == "__main__":

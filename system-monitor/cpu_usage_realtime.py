@@ -86,6 +86,7 @@ class CPUMonitor(FigureCanvas):
            self.cnt += 1
 # create the GUI application
 
+app = QtGui.QApplication(sys.argv)
 widget = CPUMonitor()
 widget.setWindowTitle("CPU Usage Realtime")
 widget.show()
